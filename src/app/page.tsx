@@ -31,10 +31,10 @@ export default function HomePage() {
 
           <div className="flex items-center justify-center gap-4">
             <Link
-              href="/dashboard"
+              href="/setup"
               className="px-8 py-4 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-xl font-semibold text-lg hover:shadow-lg hover:shadow-cyan-500/50 transition-all"
             >
-              Go to Dashboard →
+              Get Started Free →
             </Link>
             <Link
               href="/problems"
@@ -161,7 +161,7 @@ export default function HomePage() {
           repetition.
         </p>
         <Link
-          href="/dashboard"
+          href="/setup"
           className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-xl font-semibold text-lg hover:shadow-lg hover:shadow-cyan-500/50 transition-all"
         >
           Get Started Free
