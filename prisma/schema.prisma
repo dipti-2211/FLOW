@@ -1,0 +1,679 @@
+// ============================================================================
+// Nodal - DSA Tracker & Social Hub - Complete Database Schema
+// ============================================================================
+// PostgreSQL + Prisma ORM
+// ============================================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================================================
+// USER & AUTHENTICATION
+// ============================================================================
+
+model User {
+  id                String    @id @default(cuid())
+  clerkId           String    @unique // Clerk Auth integration
+  email             String    @unique
+  username          String    @unique
+  displayName       String?
+  avatarUrl         String?
+  bio               String?   @db.Text
+  
+  // External Platform Handles
+  leetcodeHandle    String?
+  codeforcesHandle  String?
+  githubHandle      String?
+  
+  // Stats (cached for performance)
+  totalSolved       Int       @default(0)
+  easySolved        Int       @default(0)
+  mediumSolved      Int       @default(0)
+  hardSolved        Int       @default(0)
+  currentStreak     Int       @default(0)
+  longestStreak     Int       @default(0)
+  totalApproaches   Int       @default(0)
+  
+  // Trophy Room / Gamification
+  xpPoints          Int       @default(0)
+  level             Int       @default(1)
+  rank              String    @default("Beginner")
+  
+  // Profile Stats
+  profileViews      Int       @default(0)
+  
+  // Preferences
+  isPublicProfile   Boolean   @default(true)
+  emailNotifications Boolean  @default(true)
+  
+  // Timestamps
+  lastActiveAt      DateTime  @default(now())
+  lastSyncAt        DateTime?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  // Relations
+  problems          UserProblem[]
+  approaches        Approach[]
+  reviews           Review[]
+  badges            UserBadge[]
+  activities        Activity[]
+  
+  // Social Relations
+  followers         Follow[]          @relation("Following")
+  following         Follow[]          @relation("Followers")
+  sentMessages      Message[]         @relation("SentMessages")
+  receivedMessages  Message[]         @relation("ReceivedMessages")
+  roomMemberships   RoomMember[]
+  upvotesGiven      ApproachUpvote[]
+  
+  // Notifications
+  notifications     Notification[]
+
+  @@index([clerkId])
+  @@index([username])
+  @@index([leetcodeHandle])
+  @@index([codeforcesHandle])
+}
+
+// ============================================================================
+// PROBLEM TRACKING
+// ============================================================================
+
+model Problem {
+  id                String        @id @default(cuid())
+  
+  // Problem Identification
+  externalId        String?       // LeetCode/Codeforces problem ID
+  platform          Platform      @default(CUSTOM)
+  url               String?
+  
+  // Problem Details
+  title             String
+  slug              String?
+  difficulty        Difficulty
+  description       String?       @db.Text
+  
+  // Categorization
+  topics            ProblemTopic[]
+  companies         ProblemCompany[]
+  
+  // Problem Stats (global)
+  acceptanceRate    Float?
+  totalSubmissions  Int           @default(0)
+  
+  // Timestamps
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  // Relations
+  userProblems      UserProblem[]
+  approaches        Approach[]
+
+  @@unique([platform, externalId])
+  @@index([difficulty])
+  @@index([platform])
+}
+
+model UserProblem {
+  id                String        @id @default(cuid())
+  userId            String
+  problemId         String
+  
+  // Status
+  status            ProblemStatus @default(UNSOLVED)
+  attemptCount      Int           @default(0)
+  
+  // Solve Details
+  solvedAt          DateTime?
+  timeSpent         Int?          // minutes
+  language          String?
+  
+  // User's Difficulty Rating
+  userDifficulty    UserDifficulty?
+  
+  // Spaced Repetition Fields
+  easeFactor        Float         @default(2.5)
+  interval          Int           @default(1)      // days
+  repetitions       Int           @default(0)
+  nextReviewAt      DateTime?
+  lastReviewedAt    DateTime?
+  
+  // Notes
+  personalNotes     String?       @db.Text
+  
+  // Bookmarks/Favorites
+  isBookmarked      Boolean       @default(false)
+  isStarred         Boolean       @default(false)
+  
+  // Timestamps
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  // Relations
+  user              User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  problem           Problem       @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  reviews           Review[]
+  approaches        Approach[]
+
+  @@unique([userId, problemId])
+  @@index([userId, status])
+  @@index([userId, nextReviewAt])
+  @@index([userId, isBookmarked])
+}
+
+// ============================================================================
+// APPROACH JOURNAL
+// ============================================================================
+
+model Approach {
+  id                String        @id @default(cuid())
+  userId            String
+  problemId         String
+  userProblemId     String?
+  
+  // Approach Title
+  title             String        @default("My Approach")
+  
+  // Three-Tab Content (Markdown)
+  intuition         String?       @db.Text  // Thought process
+  code              String?       @db.Text  // Solution code
+  codeLanguage      String?       @default("python")
+  complexity        String?       @db.Text  // Time/Space complexity with LaTeX
+  
+  // Complexity Analysis (structured)
+  timeComplexity    String?       // e.g., "O(n log n)"
+  spaceComplexity   String?       // e.g., "O(n)"
+  
+  // Metadata
+  isOptimal         Boolean       @default(false)
+  isBruteForce      Boolean       @default(false)
+  
+  // Social
+  isPublic          Boolean       @default(true)
+  upvoteCount       Int           @default(0)
+  viewCount         Int           @default(0)
+  
+  // Timestamps
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  // Relations
+  user              User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  problem           Problem       @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  userProblem       UserProblem?  @relation(fields: [userProblemId], references: [id], onDelete: SetNull)
+  upvotes           ApproachUpvote[]
+  comments          ApproachComment[]
+
+  @@index([userId])
+  @@index([problemId])
+  @@index([isPublic, upvoteCount])
+}
+
+model ApproachUpvote {
+  id                String        @id @default(cuid())
+  userId            String
+  approachId        String
+  createdAt         DateTime      @default(now())
+
+  user              User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  approach          Approach      @relation(fields: [approachId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, approachId])
+}
+
+model ApproachComment {
+  id                String        @id @default(cuid())
+  approachId        String
+  authorId          String
+  content           String        @db.Text
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  approach          Approach      @relation(fields: [approachId], references: [id], onDelete: Cascade)
+
+  @@index([approachId])
+}
+
+// ============================================================================
+// REVIEWS (Spaced Repetition Sessions)
+// ============================================================================
+
+model Review {
+  id                String        @id @default(cuid())
+  userId            String
+  userProblemId     String
+  
+  // Review Details
+  quality           Int           // 0-5 (SM-2 quality rating)
+  responseTime      Int?          // seconds to recall
+  
+  // State Before Review
+  prevEaseFactor    Float
+  prevInterval      Int
+  prevRepetitions   Int
+  
+  // State After Review
+  newEaseFactor     Float
+  newInterval       Int
+  newRepetitions    Int
+  
+  // Notes
+  reviewNotes       String?       @db.Text
+  
+  // Timestamp
+  reviewedAt        DateTime      @default(now())
+
+  // Relations
+  user              User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userProblem       UserProblem   @relation(fields: [userProblemId], references: [id], onDelete: Cascade)
+
+  @@index([userId, reviewedAt])
+  @@index([userProblemId])
+}
+
+// ============================================================================
+// SOCIAL GRAPH
+// ============================================================================
+
+model Follow {
+  id                String        @id @default(cuid())
+  followerId        String
+  followingId       String
+  createdAt         DateTime      @default(now())
+
+  follower          User          @relation("Followers", fields: [followerId], references: [id], onDelete: Cascade)
+  following         User          @relation("Following", fields: [followingId], references: [id], onDelete: Cascade)
+
+  @@unique([followerId, followingId])
+  @@index([followerId])
+  @@index([followingId])
+}
+
+// ============================================================================
+// MESSAGING & CHAT ROOMS
+// ============================================================================
+
+model Room {
+  id                String        @id @default(cuid())
+  
+  // Room Details
+  name              String
+  slug              String        @unique
+  description       String?
+  type              RoomType      @default(TOPIC)
+  
+  // Topic Association
+  topic             String?       // e.g., "Dynamic Programming", "Trees"
+  difficulty        Difficulty?
+  
+  // Room Settings
+  isPublic          Boolean       @default(true)
+  maxMembers        Int?
+  
+  // Stats
+  memberCount       Int           @default(0)
+  messageCount      Int           @default(0)
+  
+  // Timestamps
+  lastActivityAt    DateTime      @default(now())
+  createdAt         DateTime      @default(now())
+
+  // Relations
+  members           RoomMember[]
+  messages          RoomMessage[]
+
+  @@index([topic])
+  @@index([type])
+}
+
+model RoomMember {
+  id                String        @id @default(cuid())
+  userId            String
+  roomId            String
+  
+  // Role
+  role              RoomRole      @default(MEMBER)
+  
+  // Settings
+  isMuted           Boolean       @default(false)
+  lastReadAt        DateTime      @default(now())
+  
+  // Timestamps
+  joinedAt          DateTime      @default(now())
+
+  user              User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  room              Room          @relation(fields: [roomId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, roomId])
+  @@index([roomId])
+}
+
+model RoomMessage {
+  id                String        @id @default(cuid())
+  roomId            String
+  senderId          String
+  
+  // Message Content
+  content           String        @db.Text
+  messageType       MessageType   @default(TEXT)
+  
+  // Attachments
+  attachmentUrl     String?
+  codeSnippet       String?       @db.Text
+  codeLanguage      String?
+  
+  // Metadata
+  isEdited          Boolean       @default(false)
+  isPinned          Boolean       @default(false)
+  
+  // Timestamps
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  room              Room          @relation(fields: [roomId], references: [id], onDelete: Cascade)
+
+  @@index([roomId, createdAt])
+}
+
+// Direct Messages
+model Message {
+  id                String        @id @default(cuid())
+  senderId          String
+  receiverId        String
+  
+  // Content
+  content           String        @db.Text
+  messageType       MessageType   @default(TEXT)
+  
+  // Status
+  isRead            Boolean       @default(false)
+  readAt            DateTime?
+  
+  // Timestamps
+  createdAt         DateTime      @default(now())
+
+  sender            User          @relation("SentMessages", fields: [senderId], references: [id], onDelete: Cascade)
+  receiver          User          @relation("ReceivedMessages", fields: [receiverId], references: [id], onDelete: Cascade)
+
+  @@index([senderId, receiverId])
+  @@index([receiverId, isRead])
+}
+
+// ============================================================================
+// GAMIFICATION & BADGES
+// ============================================================================
+
+model Badge {
+  id                String        @id @default(cuid())
+  
+  // Badge Details
+  name              String        @unique
+  slug              String        @unique
+  description       String
+  iconUrl           String?
+  
+  // Requirements
+  category          BadgeCategory
+  requirement       String        // JSON string of requirements
+  xpReward          Int           @default(0)
+  
+  // Rarity
+  rarity            BadgeRarity   @default(COMMON)
+  
+  // Timestamps
+  createdAt         DateTime      @default(now())
+
+  // Relations
+  userBadges        UserBadge[]
+}
+
+model UserBadge {
+  id                String        @id @default(cuid())
+  userId            String
+  badgeId           String
+  
+  // When earned
+  earnedAt          DateTime      @default(now())
+  
+  // Display settings
+  isDisplayed       Boolean       @default(true)
+  displayOrder      Int           @default(0)
+
+  user              User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  badge             Badge         @relation(fields: [badgeId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, badgeId])
+  @@index([userId])
+}
+
+// ============================================================================
+// ACTIVITY FEED
+// ============================================================================
+
+model Activity {
+  id                String        @id @default(cuid())
+  userId            String
+  
+  // Activity Details
+  type              ActivityType
+  entityType        String?       // "Problem", "Approach", etc.
+  entityId          String?
+  
+  // Metadata (JSON)
+  metadata          Json?
+  
+  // Visibility
+  isPublic          Boolean       @default(true)
+  
+  // Timestamp
+  createdAt         DateTime      @default(now())
+
+  user              User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@index([type])
+}
+
+// ============================================================================
+// NOTIFICATIONS
+// ============================================================================
+
+model Notification {
+  id                String            @id @default(cuid())
+  userId            String
+  
+  // Notification Details
+  type              NotificationType
+  title             String
+  message           String
+  
+  // Link
+  linkUrl           String?
+  
+  // Status
+  isRead            Boolean           @default(false)
+  readAt            DateTime?
+  
+  // Metadata
+  metadata          Json?
+  
+  // Timestamp
+  createdAt         DateTime          @default(now())
+
+  user              User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, isRead])
+  @@index([userId, createdAt])
+}
+
+// ============================================================================
+// TOPICS & COMPANIES (Many-to-Many)
+// ============================================================================
+
+model Topic {
+  id                String        @id @default(cuid())
+  name              String        @unique
+  slug              String        @unique
+  description       String?
+  problemCount      Int           @default(0)
+  
+  problems          ProblemTopic[]
+}
+
+model ProblemTopic {
+  problemId         String
+  topicId           String
+  
+  problem           Problem       @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  topic             Topic         @relation(fields: [topicId], references: [id], onDelete: Cascade)
+
+  @@id([problemId, topicId])
+}
+
+model Company {
+  id                String        @id @default(cuid())
+  name              String        @unique
+  slug              String        @unique
+  logoUrl           String?
+  problemCount      Int           @default(0)
+  
+  problems          ProblemCompany[]
+}
+
+model ProblemCompany {
+  problemId         String
+  companyId         String
+  frequency         Int           @default(1) // How often asked
+  
+  problem           Problem       @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  company           Company       @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@id([problemId, companyId])
+}
+
+// ============================================================================
+// SYNC JOBS (External API Integration)
+// ============================================================================
+
+model SyncJob {
+  id                String        @id @default(cuid())
+  userId            String
+  
+  // Job Details
+  platform          Platform
+  status            SyncStatus    @default(PENDING)
+  
+  // Results
+  problemsSynced    Int           @default(0)
+  errorMessage      String?
+  
+  // Timestamps
+  startedAt         DateTime      @default(now())
+  completedAt       DateTime?
+}
+
+// ============================================================================
+// ENUMS
+// ============================================================================
+
+enum Platform {
+  LEETCODE
+  CODEFORCES
+  HACKERRANK
+  CODECHEF
+  CUSTOM
+}
+
+enum Difficulty {
+  EASY
+  MEDIUM
+  HARD
+}
+
+enum ProblemStatus {
+  UNSOLVED
+  ATTEMPTED
+  SOLVED
+}
+
+enum UserDifficulty {
+  TRIVIAL
+  EASY
+  MEDIUM
+  HARD
+  IMPOSSIBLE
+}
+
+enum RoomType {
+  TOPIC       // DSA topic room
+  DIFFICULTY  // Difficulty-based room
+  COMPANY     // Company prep room
+  GENERAL     // General chat
+  PRIVATE     // Private group
+}
+
+enum RoomRole {
+  OWNER
+  ADMIN
+  MODERATOR
+  MEMBER
+}
+
+enum MessageType {
+  TEXT
+  CODE
+  IMAGE
+  SYSTEM
+}
+
+enum BadgeCategory {
+  PROBLEMS    // Problem solving achievements
+  STREAKS     // Consistency badges
+  TOPICS      // Topic mastery
+  SOCIAL      // Social engagement
+  SPECIAL     // Special events
+}
+
+enum BadgeRarity {
+  COMMON
+  UNCOMMON
+  RARE
+  EPIC
+  LEGENDARY
+}
+
+enum ActivityType {
+  PROBLEM_SOLVED
+  PROBLEM_ATTEMPTED
+  APPROACH_CREATED
+  APPROACH_UPVOTED
+  BADGE_EARNED
+  STREAK_ACHIEVED
+  LEVEL_UP
+  FOLLOWED_USER
+}
+
+enum NotificationType {
+  FOLLOW
+  UPVOTE
+  COMMENT
+  MENTION
+  BADGE
+  REVIEW_DUE
+  STREAK_WARNING
+  SYSTEM
+}
+
+enum SyncStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  FAILED
+}
