@@ -1,7 +1,8 @@
+"use client";
+
 import Link from "next/link";
-import TextReveal from "@/components/ui/text-reveal";
+import { HeroGeometric } from "@/components/ui/shape-landing-hero";
 import { GlowingEffect } from "@/components/ui/glowing-effect";
-import { SparklesCore } from "@/components/ui/sparkles";
 import {
   Brain,
   FileText,
@@ -50,73 +51,32 @@ function GlowingFeatureCard({
   );
 }
 
-export default function HomePage() {
+export default function GeometricLandingPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
-      {/* Hero Section */}
-      <div className="relative overflow-hidden">
-        {/* Sparkles Background */}
-        <div className="absolute inset-0 w-full h-full">
-          <SparklesCore
-            id="tsparticleshero"
-            background="transparent"
-            minSize={0.4}
-            maxSize={1.2}
-            particleDensity={80}
-            className="w-full h-full"
-            particleColor="#ec4899"
-            speed={0.8}
-          />
+    <div className="bg-[#030303]">
+      {/* Geometric Hero Section */}
+      <HeroGeometric
+        badge="vibe.cpp"
+        title1="Master DSA"
+        title2="Like Never Before"
+        description="Track your progress, review with spaced repetition, document your approaches, and connect with fellow coders. Your ultimate DSA learning companion."
+      >
+        {/* CTA Buttons */}
+        <div className="flex items-center justify-center gap-4 flex-wrap">
+          <Link
+            href="/setup"
+            className="px-8 py-4 bg-gradient-to-r from-pink-500 to-purple-500 rounded-xl font-semibold text-lg hover:shadow-lg hover:shadow-pink-500/50 transition-all text-white"
+          >
+            Get Started Free →
+          </Link>
+          <Link
+            href="/problems"
+            className="px-8 py-4 bg-white/5 border border-white/10 rounded-xl font-semibold text-lg hover:bg-white/10 hover:border-pink-500/30 transition-all text-white"
+          >
+            Browse Problems
+          </Link>
         </div>
-
-        <div className="absolute inset-0 bg-gradient-to-r from-pink-500/10 via-transparent to-purple-500/10" />
-        <div className="absolute top-20 left-10 w-72 h-72 bg-pink-500/20 rounded-full blur-3xl" />
-        <div className="absolute bottom-20 right-10 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl" />
-
-        <div className="relative max-w-7xl mx-auto px-8 py-24 text-center">
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-pink-500/10 border border-pink-500/20 rounded-full text-pink-400 text-sm mb-8">
-            <span className="animate-pulse w-2 h-2 bg-pink-400 rounded-full"></span>
-            Now with Spaced Repetition & Social Features
-          </div>
-
-          {/* Cinematic Text Reveal */}
-          <div className="mb-8">
-            <TextReveal
-              word="vibe.cpp"
-              className="!bg-transparent !border-none !min-h-0 !p-0"
-            />
-          </div>
-
-          <h1 className="text-4xl md:text-5xl font-bold mb-6">
-            <span className="bg-gradient-to-r from-pink-400 via-purple-500 to-cyan-500 bg-clip-text text-transparent">
-              Master DSA
-            </span>
-            <br />
-            <span className="text-white">Like Never Before</span>
-          </h1>
-
-          <p className="text-xl text-slate-400 max-w-2xl mx-auto mb-12">
-            Track your progress, review with spaced repetition, document your
-            approaches, and connect with fellow coders. Your ultimate DSA
-            learning companion.
-          </p>
-
-          <div className="flex items-center justify-center gap-4">
-            <Link
-              href="/setup"
-              className="px-8 py-4 bg-gradient-to-r from-pink-500 to-purple-500 rounded-xl font-semibold text-lg hover:shadow-lg hover:shadow-pink-500/50 transition-all"
-            >
-              Get Started Free →
-            </Link>
-            <Link
-              href="/problems"
-              className="px-8 py-4 bg-white/5 border border-white/10 rounded-xl font-semibold text-lg hover:bg-white/10 hover:border-pink-500/30 transition-all"
-            >
-              Browse Problems
-            </Link>
-          </div>
-        </div>
-      </div>
+      </HeroGeometric>
 
       {/* Features Grid with Glowing Effect */}
       <div className="max-w-7xl mx-auto px-8 py-24">
@@ -193,7 +153,7 @@ export default function HomePage() {
         </p>
         <Link
           href="/setup"
-          className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-pink-500 to-purple-500 rounded-xl font-semibold text-lg hover:shadow-lg hover:shadow-pink-500/50 transition-all"
+          className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-pink-500 to-purple-500 rounded-xl font-semibold text-lg hover:shadow-lg hover:shadow-pink-500/50 transition-all text-white"
         >
           Get Started Free
           <span>→</span>

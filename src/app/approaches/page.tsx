@@ -1,5 +1,7 @@
 import Link from "next/link";
 import GlassCard from "@/components/ui/GlassCard";
+import { MarkerHighlight } from "@/components/ui/HandDrawnAccents";
+import { HoverGlow, CardShimmer } from "@/components/ui/MicroAnimations";
 
 // Mock approaches data
 const approaches = [
@@ -65,23 +67,26 @@ export default function ApproachesPage() {
       <div className="max-w-6xl mx-auto">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
-              Approach Journal
+            <h1 className="text-4xl font-bold">
+              <MarkerHighlight color="pink">Approach Journal</MarkerHighlight>
             </h1>
             <p className="text-slate-400 mt-2">
-              {approaches.length} documented approaches
+              <HoverGlow glowColor="pink">{approaches.length}</HoverGlow>{" "}
+              documented approaches
             </p>
           </div>
-          <button className="px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-lg font-semibold hover:shadow-lg hover:shadow-cyan-500/50 transition-all">
-            + New Approach
+          <button className="px-6 py-3 bg-gradient-to-r from-pink-500 to-purple-500 rounded-lg font-semibold hover:shadow-lg hover:shadow-pink-500/50 transition-all group">
+            <span className="group-hover:scale-105 inline-block transition-transform">
+              + New Approach
+            </span>
           </button>
         </div>
 
         {/* Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
           <GlassCard className="text-center">
-            <div className="text-3xl font-bold text-cyan-400">
-              {approaches.length}
+            <div className="text-3xl font-bold text-pink-400">
+              <HoverGlow glowColor="pink">{approaches.length}</HoverGlow>
             </div>
             <div className="text-sm text-slate-400">Total Approaches</div>
           </GlassCard>

@@ -1,5 +1,7 @@
 import Link from "next/link";
 import GlassCard from "@/components/ui/GlassCard";
+import { MarkerHighlight } from "@/components/ui/HandDrawnAccents";
+import { HoverGlow, ProblemIdBadge } from "@/components/ui/MicroAnimations";
 
 // Mock problems data
 const problems = [
@@ -78,7 +80,9 @@ const platformColors = {
 };
 
 function formatInterval(date: Date): string {
-  const days = Math.floor((date.getTime() - Date.now()) / (1000 * 60 * 60 * 24));
+  const days = Math.floor(
+    (date.getTime() - Date.now()) / (1000 * 60 * 60 * 24),
+  );
   if (days < 0) return "Overdue";
   if (days === 0) return "Today";
   if (days === 1) return "Tomorrow";
@@ -93,13 +97,18 @@ export default function ProblemsPage() {
       <div className="max-w-7xl mx-auto">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
-              Problems
+            <h1 className="text-4xl font-bold">
+              <MarkerHighlight color="pink">Problems</MarkerHighlight>
             </h1>
-            <p className="text-slate-400 mt-2">{problems.length} problems solved</p>
+            <p className="text-slate-400 mt-2">
+              <HoverGlow glowColor="pink">{problems.length}</HoverGlow> problems
+              solved
+            </p>
           </div>
-          <button className="px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-lg font-semibold hover:shadow-lg hover:shadow-cyan-500/50 transition-all">
-            + Add Problem
+          <button className="px-6 py-3 bg-gradient-to-r from-pink-500 to-purple-500 rounded-lg font-semibold hover:shadow-lg hover:shadow-pink-500/50 transition-all group">
+            <span className="group-hover:scale-105 inline-block transition-transform">
+              + Add Problem
+            </span>
           </button>
         </div>
 
@@ -131,22 +140,31 @@ export default function ProblemsPage() {
         {/* Problems List */}
         <div className="space-y-4">
           {problems.map((problem) => (
-            <GlassCard key={problem.id} className="hover:border-cyan-500/50 transition-colors">
+            <GlassCard
+              key={problem.id}
+              className="hover:border-pink-500/50 transition-all duration-300 group"
+            >
               <Link href={`/problems/${problem.id}`}>
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-2">
-                      <h3 className="text-xl font-semibold text-white hover:text-cyan-400 transition-colors">
+                      {/* Problem ID with glow effect */}
+                      <ProblemIdBadge id={problem.id} platform="leetcode" />
+                      <h3 className="text-xl font-semibold text-white group-hover:text-pink-400 transition-colors">
                         {problem.title}
                       </h3>
-                      <span className={`px-3 py-1 rounded-full text-xs font-medium ${difficultyColors[problem.difficulty]}`}>
+                      <span
+                        className={`px-3 py-1 rounded-full text-xs font-medium ${difficultyColors[problem.difficulty]}`}
+                      >
                         {problem.difficulty}
                       </span>
-                      <span className={`text-sm ${platformColors[problem.platform]}`}>
+                      <span
+                        className={`text-sm ${platformColors[problem.platform]}`}
+                      >
                         {problem.platform}
                       </span>
                     </div>
-                    
+
                     <div className="flex items-center gap-4 text-sm text-slate-400">
                       <span>📚 {problem.topic}</span>
                       <span>⏱️ {problem.timeSpent}min</span>
@@ -157,11 +175,15 @@ export default function ProblemsPage() {
 
                     {problem.daysOverdue > 0 && (
                       <div className="mt-3">
-                        <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                          problem.daysOverdue >= 3 ? 'bg-red-500/20 text-red-400' :
-                          problem.daysOverdue >= 1 ? 'bg-orange-500/20 text-orange-400' :
-                          'bg-yellow-500/20 text-yellow-400'
-                        }`}>
+                        <span
+                          className={`px-3 py-1 rounded-full text-xs font-medium ${
+                            problem.daysOverdue >= 3
+                              ? "bg-red-500/20 text-red-400"
+                              : problem.daysOverdue >= 1
+                                ? "bg-orange-500/20 text-orange-400"
+                                : "bg-yellow-500/20 text-yellow-400"
+                          }`}
+                        >
                           🔔 Overdue by {problem.daysOverdue} day(s)
                         </span>
                       </div>
@@ -170,8 +192,10 @@ export default function ProblemsPage() {
 
                   <div className="text-right">
                     <div className="text-sm text-slate-400">Next Review</div>
-                    <div className="text-lg font-semibold text-cyan-400">
-                      {formatInterval(problem.nextReviewAt)}
+                    <div className="text-lg font-semibold text-pink-400">
+                      <HoverGlow glowColor="pink">
+                        {formatInterval(problem.nextReviewAt)}
+                      </HoverGlow>
                     </div>
                     {problem.lastReviewedAt && (
                       <div className="text-xs text-slate-500 mt-1">

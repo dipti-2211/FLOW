@@ -2,6 +2,309 @@
 @tailwind components;
 @tailwind utilities;
 
-body {
-  @apply bg-slate-950 text-white;
+/* ============================================================================
+   Vibe Mode CSS Variables
+   ============================================================================ */
+
+:root {
+  /* System Mode (Default) - Clean & Professional */
+  --vibe-bg-primary: #0f172a;
+  --vibe-bg-secondary: #1e293b;
+  --vibe-accent-primary: #ec4899; /* Pink */
+  --vibe-accent-secondary: #8b5cf6; /* Purple */
+  --vibe-accent-tertiary: #22d3ee; /* Cyan */
+  --vibe-text-primary: #f8fafc;
+  --vibe-text-secondary: #94a3b8;
+  --vibe-text-muted: #64748b;
+  --vibe-glow-color: rgba(236, 72, 153, 0.5);
+  --vibe-border-color: rgba(255, 255, 255, 0.1);
 }
+
+/* Deep Focus Mode - Neon Pink on Black */
+[data-vibe="deep-focus"] {
+  --vibe-bg-primary: #000000;
+  --vibe-bg-secondary: #0a0a0a;
+  --vibe-accent-primary: #ff1493; /* Hot Pink */
+  --vibe-accent-secondary: #ff00ff; /* Magenta */
+  --vibe-accent-tertiary: #00ffff; /* Cyan Neon */
+  --vibe-text-primary: #ffffff;
+  --vibe-text-secondary: #a0a0a0;
+  --vibe-text-muted: #666666;
+  --vibe-glow-color: rgba(255, 20, 147, 0.8);
+  --vibe-border-color: rgba(255, 20, 147, 0.3);
+}
+
+/* Roommate Mode - Soft Pastels */
+[data-vibe="roommate"] {
+  --vibe-bg-primary: #1a1625;
+  --vibe-bg-secondary: #241f31;
+  --vibe-accent-primary: #f9a8d4; /* Soft Pink */
+  --vibe-accent-secondary: #c4b5fd; /* Soft Purple */
+  --vibe-accent-tertiary: #a5f3fc; /* Soft Cyan */
+  --vibe-text-primary: #fdf4ff;
+  --vibe-text-secondary: #d8b4fe;
+  --vibe-text-muted: #a78bfa;
+  --vibe-glow-color: rgba(249, 168, 212, 0.4);
+  --vibe-border-color: rgba(249, 168, 212, 0.2);
+}
+
+/* ============================================================================
+   Base Styles with Vibe Support
+   ============================================================================ */
+
+body {
+  background-color: var(--vibe-bg-primary);
+  color: var(--vibe-text-primary);
+  transition: background-color 0.5s ease, color 0.3s ease;
+}
+
+/* ============================================================================
+   Custom Utility Classes
+   ============================================================================ */
+
+@layer utilities {
+  /* Vibe-aware text colors */
+  .vibe-text-primary {
+    color: var(--vibe-text-primary);
+  }
+  
+  .vibe-text-secondary {
+    color: var(--vibe-text-secondary);
+  }
+  
+  .vibe-accent {
+    color: var(--vibe-accent-primary);
+  }
+  
+  /* Vibe-aware backgrounds */
+  .vibe-bg-primary {
+    background-color: var(--vibe-bg-primary);
+  }
+  
+  .vibe-bg-secondary {
+    background-color: var(--vibe-bg-secondary);
+  }
+  
+  /* Vibe-aware glass card */
+  .vibe-glass-card {
+    background: rgba(15, 23, 42, 0.5);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--vibe-border-color);
+    transition: all 0.3s ease;
+  }
+  
+  [data-vibe="deep-focus"] .vibe-glass-card {
+    background: rgba(0, 0, 0, 0.7);
+    border-color: var(--vibe-border-color);
+    box-shadow: 0 0 20px var(--vibe-glow-color);
+  }
+  
+  [data-vibe="roommate"] .vibe-glass-card {
+    background: rgba(26, 22, 37, 0.6);
+    border-color: var(--vibe-border-color);
+  }
+
+  /* Marker highlight animation */
+  .marker-highlight {
+    position: relative;
+    display: inline-block;
+  }
+  
+  .marker-highlight::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: -2px;
+    right: -2px;
+    height: 40%;
+    background: var(--vibe-accent-primary);
+    opacity: 0.3;
+    transform: skewX(-2deg);
+    border-radius: 2px;
+    z-index: -1;
+    transition: opacity 0.3s ease;
+  }
+  
+  .marker-highlight:hover::after {
+    opacity: 0.5;
+  }
+
+  /* Nav link hover glow effect */
+  .nav-link {
+    position: relative;
+  }
+  
+  .nav-link::after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--vibe-accent-primary), var(--vibe-accent-secondary));
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
+  }
+  
+  .nav-link:hover::after {
+    transform: scaleX(1);
+  }
+
+  /* Problem ID glow on hover */
+  .problem-id-glow {
+    transition: all 0.3s ease;
+  }
+  
+  .problem-id-glow:hover {
+    color: var(--vibe-accent-primary);
+    text-shadow: 0 0 10px var(--vibe-glow-color), 0 0 20px var(--vibe-glow-color);
+  }
+}
+
+/* ============================================================================
+   Animations
+   ============================================================================ */
+
+@layer utilities {
+  /* Slide in from bottom */
+  .animate-in {
+    animation: animate-in 0.2s ease-out;
+  }
+  
+  @keyframes animate-in {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  .slide-in-from-bottom-2 {
+    --tw-enter-translate-y: 0.5rem;
+  }
+  
+  .fade-in {
+    animation: fade-in 0.2s ease-out;
+  }
+  
+  @keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  /* Shimmer effect */
+  .shimmer {
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.05),
+      transparent
+    );
+    background-size: 200% 100%;
+    animation: shimmer 2s infinite;
+  }
+  
+  @keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+
+  /* Glow pulse */
+  .glow-pulse {
+    animation: glow-pulse 2s ease-in-out infinite;
+  }
+  
+  @keyframes glow-pulse {
+    0%, 100% {
+      box-shadow: 0 0 5px var(--vibe-glow-color);
+    }
+    50% {
+      box-shadow: 0 0 20px var(--vibe-glow-color), 0 0 30px var(--vibe-glow-color);
+    }
+  }
+
+  /* Float animation for decorative elements */
+  .float {
+    animation: float 3s ease-in-out infinite;
+  }
+  
+  @keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+  }
+
+  /* Typing cursor blink */
+  .cursor-blink {
+    animation: cursor-blink 1s step-end infinite;
+  }
+  
+  @keyframes cursor-blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+  }
+}
+
+/* ============================================================================
+   Deep Focus Mode Enhancements
+   ============================================================================ */
+
+[data-vibe="deep-focus"] {
+  /* Make everything more contrasty */
+  --tw-ring-color: var(--vibe-accent-primary);
+}
+
+[data-vibe="deep-focus"] body {
+  background-image: 
+    radial-gradient(at 20% 80%, rgba(255, 20, 147, 0.15) 0px, transparent 50%),
+    radial-gradient(at 80% 20%, rgba(0, 255, 255, 0.1) 0px, transparent 50%);
+}
+
+[data-vibe="deep-focus"] .nav-link:hover {
+  text-shadow: 0 0 10px var(--vibe-glow-color);
+}
+
+/* ============================================================================
+   Roommate Mode Enhancements  
+   ============================================================================ */
+
+[data-vibe="roommate"] body {
+  background-image: 
+    radial-gradient(at 30% 70%, rgba(249, 168, 212, 0.1) 0px, transparent 50%),
+    radial-gradient(at 70% 30%, rgba(196, 181, 253, 0.1) 0px, transparent 50%);
+}
+
+/* ============================================================================
+   Scrollbar Styling
+   ============================================================================ */
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--vibe-bg-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--vibe-accent-primary);
+  opacity: 0.5;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  opacity: 0.8;
+}
+
+/* ============================================================================
+   Selection Styling
+   ============================================================================ */
+
+::selection {
+  background: var(--vibe-accent-primary);
+  color: var(--vibe-bg-primary);
+}
+

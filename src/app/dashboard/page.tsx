@@ -5,6 +5,13 @@ import Link from "next/link";
 import GlassCard from "@/components/ui/GlassCard";
 import ActivityHeatmap from "@/components/dashboard/SimpleHeatmap";
 import DashboardCharts from "@/components/dashboard/SimpleCharts";
+import ProjectLog from "@/components/ui/ProjectLog";
+import TheStruggle from "@/components/ui/TheStruggle";
+import {
+  MarkerHighlight,
+  NotebookStyleCard,
+} from "@/components/ui/HandDrawnAccents";
+import { HoverGlow, TrophyRoomBadge } from "@/components/ui/MicroAnimations";
 
 interface LeetCodeStats {
   username: string;
@@ -119,33 +126,44 @@ export default function DashboardPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 p-8">
       <div className="max-w-7xl mx-auto space-y-8">
-        {/* Header */}
+        {/* Header with Marker Highlight */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
-              Dashboard
+            <h1 className="text-4xl font-bold">
+              <MarkerHighlight color="pink">Dashboard</MarkerHighlight>
             </h1>
             <p className="text-slate-400 mt-2">
               Welcome back! Here's your DSA progress
             </p>
           </div>
-          <div className="flex gap-4">
+          <div className="flex gap-4 items-center">
+            {/* Trophy Room Badge */}
+            <TrophyRoomBadge count={totalSolved} />
+
             <GlassCard className="px-6 py-3">
               <div className="text-sm text-slate-400">Total Solved</div>
-              <div className="text-3xl font-bold text-cyan-400">
-                {totalSolved}
+              <div className="text-3xl font-bold text-pink-400">
+                <HoverGlow glowColor="pink">{totalSolved}</HoverGlow>
               </div>
             </GlassCard>
             {leetcodeStats && (
               <GlassCard className="px-6 py-3">
                 <div className="text-sm text-slate-400">LeetCode Rank</div>
                 <div className="text-3xl font-bold text-purple-400">
-                  #{leetcodeStats.ranking.toLocaleString()}
+                  <HoverGlow glowColor="purple">
+                    #{leetcodeStats.ranking.toLocaleString()}
+                  </HoverGlow>
                 </div>
               </GlassCard>
             )}
           </div>
         </div>
+
+        {/* Project Log - Personal Story */}
+        <ProjectLog
+          problemCount={totalSolved}
+          authorStory="I built this because I needed a place to store my intuition. Every approach here was typed out after a long walk—the same ones I used to take as a roommate, talking through logic until it clicked."
+        />
 
         {error && (
           <GlassCard className="border-red-500/50 bg-red-500/10">
@@ -249,13 +267,10 @@ export default function DashboardPage() {
           )}
         </div>
 
-        {/* Activity Heatmap */}
-        <GlassCard>
-          <h2 className="text-2xl font-semibold mb-4 text-white">
-            🔥 LeetCode Activity
-          </h2>
+        {/* Activity Heatmap - Notebook Style */}
+        <NotebookStyleCard title="🔥 LeetCode Activity">
           <ActivityHeatmap data={getActivityData()} />
-        </GlassCard>
+        </NotebookStyleCard>
 
         {/* Difficulty Charts */}
         <DashboardCharts
@@ -272,6 +287,9 @@ export default function DashboardPage() {
             Strings: Math.floor(totalSolved * 0.1),
           }}
         />
+
+        {/* The Struggle - Dev Notes Section */}
+        <TheStruggle />
 
         {/* Recent Submissions */}
         {leetcodeStats?.recentSubmissions &&

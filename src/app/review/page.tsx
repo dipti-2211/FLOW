@@ -1,5 +1,14 @@
 import Link from "next/link";
 import GlassCard from "@/components/ui/GlassCard";
+import {
+  MarkerHighlight,
+  NotebookStyleCard,
+} from "@/components/ui/HandDrawnAccents";
+import {
+  HoverGlow,
+  ProblemIdBadge,
+  PulseRing,
+} from "@/components/ui/MicroAnimations";
 
 // Mock review queue
 const dueProblems = [
@@ -70,11 +79,13 @@ export default function ReviewPage() {
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 p-8">
       <div className="max-w-5xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
-            Review Queue
+          <h1 className="text-4xl font-bold">
+            <MarkerHighlight color="pink">Review Queue</MarkerHighlight>
           </h1>
-          <p className="text-slate-400 mt-2">
-            {dueProblems.length} problem(s) ready for review
+          <p className="text-slate-400 mt-2 flex items-center gap-2">
+            <PulseRing color="pink" size="sm" />
+            <HoverGlow glowColor="pink">{dueProblems.length}</HoverGlow>{" "}
+            problem(s) ready for review
           </p>
         </div>
 
@@ -82,19 +93,19 @@ export default function ReviewPage() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
           <GlassCard className="text-center">
             <div className="text-3xl font-bold text-red-400">
-              {dueProblems.filter(p => p.urgency === 'critical').length}
+              {dueProblems.filter((p) => p.urgency === "critical").length}
             </div>
             <div className="text-sm text-slate-400">Critical</div>
           </GlassCard>
           <GlassCard className="text-center">
             <div className="text-3xl font-bold text-orange-400">
-              {dueProblems.filter(p => p.urgency === 'high').length}
+              {dueProblems.filter((p) => p.urgency === "high").length}
             </div>
             <div className="text-sm text-slate-400">High Priority</div>
           </GlassCard>
           <GlassCard className="text-center">
             <div className="text-3xl font-bold text-yellow-400">
-              {dueProblems.filter(p => p.urgency === 'medium').length}
+              {dueProblems.filter((p) => p.urgency === "medium").length}
             </div>
             <div className="text-sm text-slate-400">Due Today</div>
           </GlassCard>
@@ -107,9 +118,13 @@ export default function ReviewPage() {
         {dueProblems.length === 0 ? (
           <GlassCard className="text-center py-12">
             <div className="text-6xl mb-4">🎉</div>
-            <h2 className="text-2xl font-semibold text-white mb-2">All caught up!</h2>
-            <p className="text-slate-400">No problems are due for review right now.</p>
-            <Link 
+            <h2 className="text-2xl font-semibold text-white mb-2">
+              All caught up!
+            </h2>
+            <p className="text-slate-400">
+              No problems are due for review right now.
+            </p>
+            <Link
               href="/problems"
               className="inline-block mt-6 px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-lg font-semibold hover:shadow-lg hover:shadow-cyan-500/50 transition-all"
             >
@@ -119,23 +134,28 @@ export default function ReviewPage() {
         ) : (
           <div className="space-y-4">
             {dueProblems.map((problem) => (
-              <GlassCard 
+              <GlassCard
                 key={problem.id}
-                className={`border-l-4 ${urgencyColors[problem.urgency]}`}
+                className={`border-l-4 ${urgencyColors[problem.urgency]} hover:border-pink-500/30 transition-all duration-300 group`}
               >
                 <Link href={`/problems/${problem.id}?review=true`}>
                   <div className="flex items-center justify-between">
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-2">
-                        <span className="text-2xl">{urgencyIcons[problem.urgency]}</span>
-                        <h3 className="text-xl font-semibold text-white hover:text-cyan-400 transition-colors">
+                        <span className="text-2xl">
+                          {urgencyIcons[problem.urgency]}
+                        </span>
+                        <ProblemIdBadge id={problem.id} platform="leetcode" />
+                        <h3 className="text-xl font-semibold text-white group-hover:text-pink-400 transition-colors">
                           {problem.title}
                         </h3>
-                        <span className={`px-3 py-1 rounded-full text-xs font-medium ${difficultyBadges[problem.difficulty as keyof typeof difficultyBadges]}`}>
+                        <span
+                          className={`px-3 py-1 rounded-full text-xs font-medium ${difficultyBadges[problem.difficulty as keyof typeof difficultyBadges]}`}
+                        >
                           {problem.difficulty}
                         </span>
                       </div>
-                      
+
                       <div className="flex items-center gap-4 text-sm text-slate-400 ml-11">
                         <span>📚 {problem.topic}</span>
                         {problem.daysOverdue > 0 && (
@@ -150,7 +170,7 @@ export default function ReviewPage() {
                     </div>
 
                     <div className="text-right">
-                      <button className="px-6 py-2 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-lg font-semibold hover:shadow-lg hover:shadow-cyan-500/50 transition-all">
+                      <button className="px-6 py-2 bg-gradient-to-r from-pink-500 to-purple-500 rounded-lg font-semibold hover:shadow-lg hover:shadow-pink-500/50 transition-all group-hover:scale-105">
                         Start Review →
                       </button>
                     </div>
@@ -162,18 +182,31 @@ export default function ReviewPage() {
         )}
 
         {/* SM-2 Algorithm Info */}
-        <GlassCard className="mt-8">
-          <h3 className="text-lg font-semibold text-white mb-3">🧠 How Spaced Repetition Works</h3>
+        <NotebookStyleCard
+          title="🧠 How Spaced Repetition Works"
+          className="mt-8"
+        >
           <div className="text-sm text-slate-400 space-y-2">
             <p>This app uses the SM-2 algorithm to optimize your learning:</p>
             <ul className="list-disc list-inside space-y-1 ml-4">
-              <li><span className="text-green-400">Easy reviews</span> increase interval significantly</li>
-              <li><span className="text-yellow-400">Medium reviews</span> maintain current schedule</li>
-              <li><span className="text-red-400">Hard reviews</span> reset to shorter intervals</li>
-              <li>Problems are scheduled at optimal times for maximum retention</li>
+              <li>
+                <span className="text-green-400">Easy reviews</span> increase
+                interval significantly
+              </li>
+              <li>
+                <span className="text-yellow-400">Medium reviews</span> maintain
+                current schedule
+              </li>
+              <li>
+                <span className="text-red-400">Hard reviews</span> reset to
+                shorter intervals
+              </li>
+              <li>
+                Problems are scheduled at optimal times for maximum retention
+              </li>
             </ul>
           </div>
-        </GlassCard>
+        </NotebookStyleCard>
       </div>
     </div>
   );
